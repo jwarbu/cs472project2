@@ -10,6 +10,7 @@ public class Menu
 
     public void displayMenu()
     {
+        System.out.println();
         System.out.println("(R)ead, (W)rite, or (D)isplay Cache?");
         System.out.print("> ");
         menuChoice = keyboard.nextLine();

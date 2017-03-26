@@ -32,9 +32,10 @@ public class Main {
          //**/
 
 
+        MainCache Cache = new MainCache();
         CacheObj cacheBlock = new CacheObj();
 
-        cacheBlock.setAddress((short)0x000007ae);
+        cacheBlock.setAddress((short)0x000007a2);
         cacheBlock.debugAddress();
 
 
@@ -48,14 +49,25 @@ public class Main {
                 case("R"): // read: check if address is in cache, Y: 'hit' return value
                 {
                     System.out.println("What address would you like to read?");
-                    short temp_add = keyboard.nextShort();
-                    keyboard.nextLine();
+                    short temp_add = Short.parseShort(keyboard.nextLine(), 16);
+                    short temp_val = Cache.checkCache(temp_add, Main_mem[temp_add]);
 
-                    if (cacheBlock.isInCache(temp_add))
+                    //System.out.println(Integer.toHexString(temp_add));
+
+                    if (temp_val != 0)
                     {
-                        System.out.println("Address: " + temp_add);
-                        System.out.println("Cache Hit");
+                        System.out.println();
+                        System.out.println("Address: " + Integer.toHexString(temp_add));
+                        System.out.println("Cache Hit!");
+                        System.out.println("Value: " + Integer.toHexString(temp_val));
+                    }
 
+                    else
+                    {
+                        System.out.println();
+                        System.out.println("Address: " + Integer.toHexString(temp_add));
+                        System.out.println("Cache Miss!");
+                        System.out.println("Value: " + Integer.toHexString(Main_mem[temp_add]));
                     }
 
                     break;

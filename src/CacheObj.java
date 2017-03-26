@@ -1,3 +1,5 @@
+import java.lang.reflect.Array;
+
 /**
  * Created by jwartick on 3/25/17.
  */
@@ -7,58 +9,29 @@ public class CacheObj
     int tag;
     short address;
     short mem_value;
-    short block_offset;
-    short block_begin_addr;
-    short slot_num;
-    CacheObj[] Cache = new CacheObj[16];
+    short offset;
+    short begin_addr;
+    int slot_num;
+    int[] data_block = new int[16]; // default values should be 0
 
 
-    public CacheObj () //constructor
+    public CacheObj() //constructor
     {
         valid_flag = 0;
+        mem_value = 0;
         tag = 0;
         address = 0;
-        mem_value = 0;
-        block_offset = 0;
-        block_begin_addr = 0;
+        offset = 0;
+        begin_addr = 0;
         slot_num = 0;
-
-        // initialize Cache
-
-        for(int i = 0; i<16; i++)
-        {
-            Cache[i] = new CacheObj();
-        }
-
     }
 
-    /**
-     * receives an address and checks if it is in the Cache array
-     * @param in_add
-     *      user specified address
-     * @return
-     *      returns boolean flag; true if address is in the cache and flase if not
-     */
-    public boolean isInCache(short in_add)
+    public CacheObj(short in_add, short in_val)
     {
-        boolean flag = false;
-        for (CacheObj block: Cache)
-        {
-            if (block.isValid())
-            {
-                if (block.getAddress()==in_add)
-                {
-                    flag = true;
-                }
-            }
+        processAddress(in_add);
+        valid_flag = 1;
+        mem_value = in_val;
 
-            else
-            {
-                flag = false;
-            }
-        }
-
-        return flag;
     }
 
     public boolean isValid()
@@ -87,20 +60,6 @@ public class CacheObj
         return address;
     }
 
-    public void debugAddress()
-    {
-        block_offset = (short)(address & 0x0000000F);
-        block_begin_addr = (short)(address & 0x000000F0);
-        tag = address >>> 8;
-        slot_num = (short)((address & 0x000000F0) >>> 4);
-        System.out.println("address: " + Integer.toHexString(address));
-        System.out.println("block offset: " + Integer.toHexString(block_offset));
-        System.out.println("begin address: " + Integer.toHexString(block_begin_addr));
-        System.out.println("tag: " + Integer.toHexString(tag));
-        System.out.println("slot num: " + Integer.toHexString(slot_num));
-
-    }
-
     public void setValue(short val)
     {
         mem_value = val;
@@ -110,5 +69,83 @@ public class CacheObj
     {
         return mem_value;
     }
+
+    public void setTag(int i)
+    {
+        tag = i;
+    }
+
+    public int getTag()
+    {
+        return tag;
+    }
+
+    public void setOffset(short o)
+    {
+        offset = o;
+    }
+
+    public short getOffset()
+    {
+        return offset;
+    }
+
+    public void setBeginAddr(short b)
+    {
+        begin_addr = b;
+    }
+
+    public short getBeginAddr()
+    {
+        return begin_addr;
+    }
+
+    public void setSlotNum(int i)
+    {
+        slot_num = i;
+    }
+
+    public int getSlotNum()
+    {
+        return slot_num;
+    }
+
+    public int[] getDataBlock()
+    {
+        return data_block;
+    }
+
+    public void grabBlock(short block_begin_addr)
+    {
+        for(int i = 0; i<0xF; i++)
+        {
+            data_block[i] = block_begin_addr + i;
+        }
+    }
+
+    public void processAddress(short in_add)
+    {
+        address = in_add;
+        offset = (short)(in_add & 0x0000000F);
+        begin_addr = (short)(in_add & 0x000000F0);
+        tag = in_add >>> 8;
+        slot_num = (in_add & 0x000000F0) >>> 4;
+
+    }
+
+    public void debugAddress()
+    {
+        offset = (short)(address & 0x0000000F);
+        begin_addr = (short)(address & 0x000000F0);
+        tag = address >>> 8;
+        slot_num = (short)((address & 0x000000F0) >>> 4);
+        System.out.println("address: " + Integer.toHexString(address));
+        System.out.println("block offset: " + Integer.toHexString(offset));
+        System.out.println("begin address: " + Integer.toHexString(begin_addr));
+        System.out.println("tag: " + Integer.toHexString(tag));
+        System.out.println("slot num: " + Integer.toHexString(slot_num));
+
+    }
+
 
 }
