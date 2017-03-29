@@ -6,10 +6,10 @@ public class Main {
 
         Scanner keyboard = new Scanner(System.in);
 
-        short[] Main_mem = new short[2048];
+        int[] Main_mem = new int[2048];
 
     // initializing Main_mem
-        short temp_initializer = 0;
+        int temp_initializer = 0;
 
         for(int i = 0; i<2048; i++)
         {
@@ -32,10 +32,10 @@ public class Main {
          //**/
 
 
-        MainCache Cache = new MainCache();
+        MainCache fullCache = new MainCache();
         CacheObj cacheBlock = new CacheObj();
 
-        cacheBlock.setAddress((short)0x000007a2);
+        cacheBlock.setAddress(0x000007a2);
         cacheBlock.debugAddress();
 
 
@@ -49,8 +49,8 @@ public class Main {
                 case("R"): // read: check if address is in cache, Y: 'hit' return value
                 {
                     System.out.println("What address would you like to read?");
-                    short temp_add = Short.parseShort(keyboard.nextLine(), 16);
-                    short temp_val = Cache.checkCache(temp_add, Main_mem[temp_add]);
+                    int temp_add = Integer.parseInt(keyboard.nextLine(), 16);
+                    int temp_val = fullCache.checkCache(temp_add);
 
                     //System.out.println(Integer.toHexString(temp_add));
 
@@ -59,15 +59,17 @@ public class Main {
                         System.out.println();
                         System.out.println("Address: " + Integer.toHexString(temp_add));
                         System.out.println("Cache Hit!");
-                        System.out.println("Value: " + Integer.toHexString(temp_val));
+                        System.out.println("Value at " + Integer.toHexString(temp_add) + ": " + Integer.toHexString(temp_val));
                     }
 
-                    else
+                    else // was not in cache
                     {
+                        fullCache.addToCache(temp_add);
                         System.out.println();
                         System.out.println("Address: " + Integer.toHexString(temp_add));
                         System.out.println("Cache Miss!");
-                        System.out.println("Value: " + Integer.toHexString(Main_mem[temp_add]));
+                        System.out.println("Value at " + Integer.toHexString(temp_add) + ": " + Integer.toHexString(Main_mem[temp_add])); // show value found in Main_mem array
+
                     }
 
                     break;
@@ -76,13 +78,39 @@ public class Main {
                 case("W"): // write
                 {
                     System.out.println("What address would you like to write to?");
+                    int temp_add = Integer.parseInt(keyboard.nextLine(), 16);
+                    System.out.println("What data would you like to write at that address?");
+                    int user_val = Integer.parseInt(keyboard.nextLine(), 16);
+                    int temp_val = fullCache.checkCache(temp_add); // check if valid
+
+                    if (temp_val != 0) // aka cache hit
+                    {
+                        fullCache.writeValue(temp_add, user_val);
+                        System.out.println();
+                        System.out.println("Address: " + Integer.toHexString(temp_add));
+                        System.out.println("Cache Hit!");
+                        System.out.println("Value: " + Integer.toHexString(fullCache.checkCache(temp_add)));
+                    }
+
+                    else // was not in cache
+                    {
+                        fullCache.addToCache(temp_add);
+                        fullCache.writeValue(temp_add, user_val);
+
+                        System.out.println();
+                        System.out.println("Address: " + Integer.toHexString(temp_add));
+                        System.out.println("Cache Miss!");
+                        System.out.println("Value: " + Integer.toHexString(fullCache.checkCache(temp_add))); // show value found in Main_mem array
+
+                    }
 
                     break;
                 }
 
                 case("D"): // display
                 {
-                    System.out.println("Cache below: ");
+                    System.out.println("Slot | Valid | Tag\t\tData");
+                    fullCache.prettyPrint();
                 }
             }
 

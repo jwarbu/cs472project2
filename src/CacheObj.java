@@ -7,10 +7,9 @@ public class CacheObj
 {
     int valid_flag;
     int tag;
-    short address;
-    short mem_value;
-    short offset;
-    short begin_addr;
+    int address;
+    int offset;
+    int begin_addr;
     int slot_num;
     int[] data_block = new int[16]; // default values should be 0
 
@@ -18,7 +17,6 @@ public class CacheObj
     public CacheObj() //constructor
     {
         valid_flag = 0;
-        mem_value = 0;
         tag = 0;
         address = 0;
         offset = 0;
@@ -26,11 +24,17 @@ public class CacheObj
         slot_num = 0;
     }
 
-    public CacheObj(short in_add, short in_val)
+    public CacheObj(int in_add)
     {
         processAddress(in_add);
+        grabBlock(begin_addr);
         valid_flag = 1;
-        mem_value = in_val;
+
+    }
+
+    public void setData(int in_val)
+    {
+        data_block[offset] = in_val;
 
     }
 
@@ -50,25 +54,26 @@ public class CacheObj
         return flag;
     }
 
-    public void setAddress(short s)
+    public void setValidFlag(int i)
+    {
+        valid_flag = i;
+    }
+
+    public int getValidFlag()
+    {
+        return valid_flag;
+    }
+
+    public void setAddress(int s)
     {
         address = s;
     }
 
-    public short getAddress()
+    public int getAddress()
     {
         return address;
     }
 
-    public void setValue(short val)
-    {
-        mem_value = val;
-    }
-
-    public short getValue()
-    {
-        return mem_value;
-    }
 
     public void setTag(int i)
     {
@@ -80,22 +85,22 @@ public class CacheObj
         return tag;
     }
 
-    public void setOffset(short o)
+    public void setOffset(int o)
     {
         offset = o;
     }
 
-    public short getOffset()
+    public int getOffset()
     {
         return offset;
     }
 
-    public void setBeginAddr(short b)
+    public void setBeginAddr(int b)
     {
         begin_addr = b;
     }
 
-    public short getBeginAddr()
+    public int getBeginAddr()
     {
         return begin_addr;
     }
@@ -115,19 +120,19 @@ public class CacheObj
         return data_block;
     }
 
-    public void grabBlock(short block_begin_addr)
+    public void grabBlock(int block_begin_addr)
     {
-        for(int i = 0; i<0xF; i++)
+        for(int i = 0; i<=0xF; i++)
         {
             data_block[i] = block_begin_addr + i;
         }
     }
 
-    public void processAddress(short in_add)
+    public void processAddress(int in_add)
     {
         address = in_add;
-        offset = (short)(in_add & 0x0000000F);
-        begin_addr = (short)(in_add & 0x000000F0);
+        offset = in_add & 0x0000000F;
+        begin_addr = in_add & 0x000000F0;
         tag = in_add >>> 8;
         slot_num = (in_add & 0x000000F0) >>> 4;
 
@@ -135,10 +140,10 @@ public class CacheObj
 
     public void debugAddress()
     {
-        offset = (short)(address & 0x0000000F);
-        begin_addr = (short)(address & 0x000000F0);
+        offset = (int)(address & 0x0000000F);
+        begin_addr = (int)(address & 0x000000F0);
         tag = address >>> 8;
-        slot_num = (short)((address & 0x000000F0) >>> 4);
+        slot_num = (int)((address & 0x000000F0) >>> 4);
         System.out.println("address: " + Integer.toHexString(address));
         System.out.println("block offset: " + Integer.toHexString(offset));
         System.out.println("begin address: " + Integer.toHexString(begin_addr));
@@ -147,5 +152,17 @@ public class CacheObj
 
     }
 
+    public int findValue(int in_offset)
+    {
+        return (data_block[in_offset]);
+    }
+
+    public void printDataBlock()
+    {
+        for(int i = 0; i<data_block.length;i++)
+        {
+            System.out.print(Integer.toHexString(data_block[i]) + " ");
+        }
+    }
 
 }
